@@ -182,9 +182,9 @@ DrawLoopBank1
 	;==========
 	
   IF NTSC
-	LDA	#$88	; blue
+	LDA	#$82	; blue
   ELSE ; (PAL)
-	LDA	#$D8	; blue
+	LDA	#$D2	; blue
   ENDIF
 	STA	COLUPF
 
@@ -528,72 +528,72 @@ Level_1_WhiteData_PF2_3
 	dc.b	$55
 	dc.b	$D5
 	dc.b	$15
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$B5
+	dc.b	$45
+	dc.b	$ED
+	dc.b	$51
+	dc.b	$BB
+	dc.b	$54
+	dc.b	$EE
+	dc.b	$45
 	; 60-41
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$83
+	dc.b	$41
+	dc.b	$C0
+	dc.b	$01
+	dc.b	$A3
+	dc.b	$45
+	dc.b	$EE
+	dc.b	$55
+	dc.b	$BB
+	dc.b	$55
+	dc.b	$AE
+	dc.b	$55
+	dc.b	$3B
+	dc.b	$55
+	dc.b	$4F
+	dc.b	$56
+	dc.b	$BC
+	dc.b	$5A
+	dc.b	$E2
+	dc.b	$7A
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$CA
+	dc.b	$9A
+	dc.b	$0A
+	dc.b	$1A
+	dc.b	$0A
+	dc.b	$1A
+	dc.b	$0A
+	dc.b	$1A
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0B
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
+	dc.b	$1B
+	dc.b	$0A
 
 Level_1_WhiteData_PF0_4
 	; 20-0
@@ -618,27 +618,35 @@ Level_1_WhiteData_PF0_4
 	dc.b	$50
 	dc.b	$50
 	; 40-21
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$D0
+	dc.b	$10
+	dc.b	$B0
+	dc.b	$40
+	dc.b	$E0
+	dc.b	$D0
+	dc.b	$B0
+	dc.b	$D0
+	dc.b	$E0
+	dc.b	$50
+	dc.b	$B0
+	dc.b	$50
+	dc.b	$E0
+	dc.b	$50
 	; 60-41
+	dc.b	$B0
+	dc.b	$50
+	dc.b	$E0
+	dc.b	$50
+	dc.b	$30
+	dc.b	$10
+	dc.b	$00
+	dc.b	$10
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
@@ -650,52 +658,44 @@ Level_1_WhiteData_PF0_4
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$10
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$30
+	dc.b	$50
+	dc.b	$F0
+	dc.b	$60
+	dc.b	$C0
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$20
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$A0
+	dc.b	$E0
+	dc.b	$80
+	dc.b	$C0
+	dc.b	$E0
+	dc.b	$50
+	dc.b	$60
 
 	;==========
 	ORG	$FC00
@@ -744,63 +744,63 @@ Level_1_WhiteData_PF1_5
 	dc.b	$56
 	dc.b	$AB
 	; 60-41
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$DD
+	dc.b	$8A
+	dc.b	$17
+	dc.b	$0E
+	dc.b	$15
+	dc.b	$0B
+	dc.b	$17
+	dc.b	$2A
+	dc.b	$15
+	dc.b	$27
+	dc.b	$1D
+	dc.b	$1F
+	dc.b	$1B
+	dc.b	$2F
+	dc.b	$2B
+	dc.b	$1D
+	dc.b	$1F
+	dc.b	$3E
+	dc.b	$2F
+	dc.b	$1C
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$3D
+	dc.b	$1A
+	dc.b	$17
+	dc.b	$8A
+	dc.b	$DD
+	dc.b	$AA
+	dc.b	$F7
+	dc.b	$EA
+	dc.b	$1D
+	dc.b	$8A
+	dc.b	$07
+	dc.b	$82
+	dc.b	$05
+	dc.b	$84
+	dc.b	$04
+	dc.b	$8C
+	dc.b	$14
+	dc.b	$AC
+	dc.b	$18
+	dc.b	$AC
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$5A
+	dc.b	$B9
+	dc.b	$70
+	dc.b	$B0
+	dc.b	$60
+	dc.b	$E0
+	dc.b	$C4
+	dc.b	$C0
+	dc.b	$80
+	dc.b	$80
+	dc.b	$10
+	dc.b	$20
+	dc.b	$12
+	dc.b	$38
+	dc.b	$18
 
 Level_1_WhiteData_PF2_6
 	; 20-0
@@ -825,84 +825,84 @@ Level_1_WhiteData_PF2_6
 	dc.b	$08
 	dc.b	$08
 	; 40-21
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$08
+	dc.b	$08
+	dc.b	$08
+	dc.b	$09
+	dc.b	$0B
+	dc.b	$09
+	dc.b	$08
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
+	dc.b	$0A
 	; 60-41
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$09
+	dc.b	$0B
+	dc.b	$06
+	dc.b	$0D
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0F
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$05
+	dc.b	$0B
+	dc.b	$05
+	dc.b	$0E
+	dc.b	$04
+	dc.b	$08
+	dc.b	$06
+	dc.b	$05
+	dc.b	$04
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$03
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
+	dc.b	$04
 
 	;==========
 	ORG	$FD00
@@ -1149,72 +1149,77 @@ Level_1_BlueData_PF2_3
 	dc.b	$55
 	dc.b	$D5
 	dc.b	$55
+	dc.b	$35
+	dc.b	$15
+	dc.b	$0D
+	dc.b	$05
+	dc.b	$03
+	dc.b	$01
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$10
 	; 60-41
 	dc.b	$00
+	dc.b	$54
+	dc.b	$C6
+	dc.b	$54
+	dc.b	$28
+	dc.b	$90
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$A0
+	dc.b	$40
+	dc.b	$28
+	dc.b	$50
+	dc.b	$2A
+	dc.b	$84
+	dc.b	$2A
+	dc.b	$D1
+	dc.b	$2A
+	dc.b	$44
+	dc.b	$2A
+	dc.b	$12
+	dc.b	$AA
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$4A
+	dc.b	$AA
+	dc.b	$2A
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AB
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AA
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	dc.b	$AB
+	; dc.b	$2A
+	; dc.b	$2B
+	; dc.b	$2A
+	; dc.b	$2A
+	; dc.b	$AA
 
 Level_1_BlueData_PF0_4
 	; 20-0
@@ -1239,16 +1244,16 @@ Level_1_BlueData_PF0_4
 	dc.b	$50
 	dc.b	$50
 	; 40-21
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$50
+	dc.b	$D0
+	dc.b	$50
+	dc.b	$30
+	dc.b	$10
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
@@ -1261,62 +1266,62 @@ Level_1_BlueData_PF0_4
 	dc.b	$00
 	; 60-41
 	dc.b	$00
+	dc.b	$80
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$A0
+	dc.b	$C0
+	dc.b	$20
+	dc.b	$90
+	dc.b	$40
+	dc.b	$B0
+	dc.b	$40
+	dc.b	$10
+	dc.b	$60
+	dc.b	$50
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$B0
+	dc.b	$D0
+	dc.b	$50
+	dc.b	$60
+	dc.b	$80
 	; 80-61
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$80
+	dc.b	$20
+	dc.b	$10
+	dc.b	$A0
+	dc.b	$40
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$A0
+	dc.b	$20
+	dc.b	$20
+	dc.b	$20
+	dc.b	$20
+	dc.b	$20
+	dc.b	$20
+	dc.b	$80
+	dc.b	$80
+	dc.b	$80
+	dc.b	$C0
 
 	;==========
 	ORG	$FF00
@@ -1365,63 +1370,63 @@ Level_1_BlueData_PF1_5
 	dc.b	$09
 	dc.b	$54
 	; 60-41
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$22
+	dc.b	$55
+	dc.b	$A0
+	dc.b	$35
+	dc.b	$4C
+	dc.b	$A5
+	dc.b	$4B
+	dc.b	$95
+	dc.b	$6A
+	dc.b	$1D
+	dc.b	$C7
+	dc.b	$C4
+	dc.b	$C5
+	dc.b	$92
+	dc.b	$96
+	dc.b	$4A
+	dc.b	$49
+	dc.b	$95
+	dc.b	$94
+	dc.b	$C3
 	; 80-61
+	dc.b	$90
+	dc.b	$6D
+	dc.b	$20
+	dc.b	$54
+	dc.b	$20
+	dc.b	$50
+	dc.b	$80
+	dc.b	$40
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$40
+	dc.b	$50
+	dc.b	$50
+	dc.b	$56
+	dc.b	$57
+	dc.b	$57
+	dc.b	$45
+	dc.b	$46
+	dc.b	$4D
+	dc.b	$4A
+	dc.b	$19
 	; 95-81
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$1C
+	dc.b	$1E
+	dc.b	$9E
+	dc.b	$3D
+	dc.b	$3A
+	dc.b	$3D
+	dc.b	$71
+	dc.b	$79
+	dc.b	$DD
+	dc.b	$E9
+	dc.b	$CD
+	dc.b	$99
+	dc.b	$CD
+	dc.b	$93
+	dc.b	$4D
 
 Level_1_BlueData_PF2_6
 	; 20-0
@@ -1446,47 +1451,47 @@ Level_1_BlueData_PF2_6
 	dc.b	$05
 	dc.b	$05
 	; 40-21
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$05
+	dc.b	$05
+	dc.b	$06
+	dc.b	$04
+	dc.b	$01
+	dc.b	$05
+	dc.b	$06
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
+	dc.b	$05
 	; 60-41
+	dc.b	$06
+	dc.b	$04
+	dc.b	$09
+	dc.b	$02
+	dc.b	$04
+	dc.b	$0A
 	dc.b	$00
+	dc.b	$0A
+	dc.b	$04
+	dc.b	$09
 	dc.b	$00
+	dc.b	$0B
 	dc.b	$00
+	dc.b	$0B
+	dc.b	$01
+	dc.b	$08
+	dc.b	$04
+	dc.b	$0A
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$02
 	; 80-61
 	dc.b	$00
 	dc.b	$00
@@ -1502,28 +1507,28 @@ Level_1_BlueData_PF2_6
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$01
+	dc.b	$03
+	dc.b	$03
+	dc.b	$05
+	dc.b	$07
+	dc.b	$06
 	; 95-81
+	dc.b	$07
+	dc.b	$06
+	dc.b	$01
+	dc.b	$02
+	dc.b	$02
+	dc.b	$04
 	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
+	dc.b	$06
+	dc.b	$04
+	dc.b	$06
+	dc.b	$04
+	dc.b	$06
+	dc.b	$04
+	dc.b	$06
+	dc.b	$04
 
 ;==============================
 
