@@ -29,7 +29,9 @@ Temp = $80  ; one Word
 ;---------------------
 ; $90-$9F = Screen variables
 ;---------------------
-
+SWCHAStore = $90
+ScrollPointerTop = $91
+ScrollPointerBottom = $92
 
 ;===================================
 ; Constants
@@ -76,6 +78,11 @@ GameInitBank1
 ;=================
 
 	; Do init stuff
+	LDA	#95
+	STA	ScrollPointerTop ; lowest
+	LDA	#0
+	STA	ScrollPointerBottom ; lowest
+
 
 ;=================
 MainLoopBank1
@@ -118,11 +125,34 @@ VerticalBlankBank1
 GameCalcBank1
 ;=================
 
-	; Clear things out before our draw loop
-	LDA	#0
-	STA	PF0
-	STA	PF1
-	STA	PF2
+	;=================
+	LDA	SWCHA
+	STA	SWCHAStore
+	;=================
+
+	;=================
+	; Joystick up/down movement-- tied to Grinch V Position data
+	;=================
+	LDA	SWCHAStore
+	AND	#%00010000 ; up
+	BNE	CheckDown
+	LDA	ScrollPointerTop
+	CMP	#255
+	BEQ	CheckDown
+	INC	ScrollPointerTop
+	INC	ScrollPointerBottom
+CheckDown
+	LDA	SWCHAStore
+	AND	#%00100000 ; down
+	BNE	InitialJoyCheckDone
+	LDA	ScrollPointerTop
+	CMP	#95
+	BEQ	InitialJoyCheckDone
+	DEC	ScrollPointerTop
+	DeC	ScrollPointerBottom
+InitialJoyCheckDone
+	;=================
+
 
 	;==================
 	RTS
@@ -142,7 +172,9 @@ DrawScreenBank1
 	STA	COLUBK
 	STA	CTRLPF ; non-reflected
 
-	LDY	#(95-1) ; (95*2 = 190 + 2 on top = 192)
+	;LDY	#(95-1) ; (95*2 = 190 + 2 on top = 192)
+	LDY	ScrollPointerTop
+	DEY
 
 	;==========
 	STA	WSYNC ; [1]
@@ -207,6 +239,7 @@ DrawLoopBank1
 
 
 	DEY
+	CPY	ScrollPointerBottom
 	BPL	DrawLoopBank1
 
 	;========================
@@ -221,7 +254,7 @@ DrawLoopBank1
 	LDY	#0
 	STY	PF0
 	STY	PF1
-	STY	PF1
+	STY	PF2
 	STY	GRP1
 	STY	GRP0
 	STY	VDELP1
@@ -283,7 +316,7 @@ WaitForEndOfOverscanBank1
 ;| PF0  | PF1      | PF2      | PF2      | PF1      | PF0  |  
 
 	;==========
-	ORG	$FA00
+	ORG	$F400
 	;==========
 Level_1_WhiteData_PF0_1
 	; 20-0
@@ -387,6 +420,9 @@ Level_1_WhiteData_PF0_1
 	dc.b	$00
 	dc.b	$00
 
+	;==========
+	ORG	$F500
+	;==========
 Level_1_WhiteData_PF1_2
 	; 20-0
 	dc.b	$AA
@@ -491,7 +527,7 @@ Level_1_WhiteData_PF1_2
 
 
 	;==========
-	ORG	$FB00
+	ORG	$F600
 	;==========
 Level_1_WhiteData_PF2_3
 	; 20-0
@@ -595,6 +631,9 @@ Level_1_WhiteData_PF2_3
 	dc.b	$1B
 	dc.b	$0A
 
+	;==========
+	ORG	$F700
+	;==========
 Level_1_WhiteData_PF0_4
 	; 20-0
 	dc.b	$50
@@ -698,7 +737,7 @@ Level_1_WhiteData_PF0_4
 	dc.b	$60
 
 	;==========
-	ORG	$FC00
+	ORG	$F800
 	;==========
 Level_1_WhiteData_PF1_5
 	; 20-0
@@ -802,6 +841,9 @@ Level_1_WhiteData_PF1_5
 	dc.b	$38
 	dc.b	$18
 
+	;==========
+	ORG	$F900
+	;==========
 Level_1_WhiteData_PF2_6
 	; 20-0
 	dc.b	$08
@@ -905,7 +947,7 @@ Level_1_WhiteData_PF2_6
 	dc.b	$04
 
 	;==========
-	ORG	$FD00
+	ORG	$FA00
 	;==========
 Level_1_BlueData_PF0_1
 	; 20-0
@@ -1009,6 +1051,9 @@ Level_1_BlueData_PF0_1
 	dc.b	$00
 	dc.b	$00
 
+	;==========
+	ORG	$FB00
+	;==========
 Level_1_BlueData_PF1_2
 	; 20-0
 	dc.b	$AA
@@ -1112,7 +1157,7 @@ Level_1_BlueData_PF1_2
 	dc.b	$4A
 
 	;==========
-	ORG	$FE00
+	ORG	$FC00
 	;==========
 Level_1_BlueData_PF2_3
 	; 20-0
@@ -1221,6 +1266,9 @@ Level_1_BlueData_PF2_3
 	; dc.b	$2A
 	; dc.b	$AA
 
+	;==========
+	ORG	$FD00
+	;==========
 Level_1_BlueData_PF0_4
 	; 20-0
 	dc.b	$50
@@ -1324,7 +1372,7 @@ Level_1_BlueData_PF0_4
 	dc.b	$C0
 
 	;==========
-	ORG	$FF00
+	ORG	$FE00
 	;==========
 Level_1_BlueData_PF1_5
 	; 20-0
@@ -1428,6 +1476,9 @@ Level_1_BlueData_PF1_5
 	dc.b	$93
 	dc.b	$4D
 
+	;==========
+	ORG	$FF00
+	;==========
 Level_1_BlueData_PF2_6
 	; 20-0
 	dc.b	$05
@@ -1533,10 +1584,8 @@ Level_1_BlueData_PF2_6
 ;==============================
 
 	;==========
-	ORG	$FFF8
+	ORG	$FFFC
 	;==========
 
-	dc.w	Start ; FFF8-FFF9
-	dc.w	Start ; FFFA-FFFB
 	dc.w	Start ; FFFC-FFFD
 	dc.w	Start ; FFFE-FFFF
