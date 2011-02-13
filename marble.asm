@@ -22,7 +22,7 @@
 ; RAM Allocation
 ;===================================
 ;---------------------
-; $80-$81 = Temp variables
+; $80-$8F = Temp variables
 ;---------------------
 Temp = $80  ; one Word
 
@@ -33,6 +33,16 @@ SWCHAStore = $90
 ScrollPointerTop = $91
 ScrollPointerBottom = $92
 OddFrameCheck = $93
+Player0HPosition = $94
+Player1HPosition = $95
+Player0VPosition = $96
+Player0VPosition2 = $97
+
+;---------------------
+; $A0-$AF = Marble RAM
+;---------------------
+P0MarbleRAM = $A0 ; 8 bytes
+; Next is $A8
 
 ;===================================
 ; Constants
@@ -85,11 +95,18 @@ GameInitBank1
 ;=================
 
 	; Do init stuff
-	LDA	#95
-	STA	ScrollPointerTop ; lowest
-	LDA	#0
+	LDA	#200
+	STA	ScrollPointerTop ; highest for practiceLevel
+	LDA	#(200-89)
 	STA	ScrollPointerBottom ; lowest
+	LDA	#1
 	STA	OddFrameCheck ; even frame
+	LDA	#77
+	STA	Player0HPosition
+	LDA	#189
+	STA	Player0VPosition ; these are divided by 2, so pos is 20.
+	LDA	#0
+	STA	Player0VPosition2 ; 0 or 1, frame counter to slow ball
 
 ;=================
 MainLoopBank1
@@ -143,42 +160,151 @@ GameCalcBank1
 	LDA	SWCHAStore
 	AND	#%00010000 ; up
 	BNE	CheckDown
+
+HandleDown
+	; Can we move Player0 down?
+	LDA	Player0VPosition	; start value 160
+	SEC
+	SBC	ScrollPointerBottom
+	CMP	#80
+	BEQ	ScrollFrameDown
+	; otherwise, move the ball down
+	INC	Player0VPosition2
+	LDA	Player0VPosition2
+	AND	#1
+	BNE	CheckDown
+	INC	Player0VPosition
+	JMP	CheckDown
+ScrollFrameDown
 	LDA	ScrollPointerTop
 	CMP	#MAXLEVELHEIGHT
 	BEQ	CheckDown
+
 	LDA	OddFrameCheck
-	BNE	ScrollDown
+	BNE	ScrollDown2
 	INC	OddFrameCheck
 	JMP	CheckDown ; can turn to BNE later
-ScrollDown
+
+ScrollDown2
 	LDA	#0
 	STA	OddFrameCheck
 	INC	ScrollPointerTop
 	INC	ScrollPointerBottom
+
 CheckDown
 	LDA	SWCHAStore
 	AND	#%00100000 ; down
-	BNE	InitialJoyCheckDone
+	BNE	CheckRight
+
+HandleUp
+	; Can we move Player0 up?
+	LDA	Player0VPosition	; start value 160
+	SEC
+	SBC	ScrollPointerBottom
+	CMP	#10
+	BEQ	ScrollFrameUp
+	; otherwise, move the ball up
+	INC	Player0VPosition2
+	LDA	Player0VPosition2
+	AND	#1
+	BNE	CheckRight
+	DEC	Player0VPosition
+	JMP	CheckRight
+ScrollFrameUp
+
 	LDA	ScrollPointerTop
-	CMP	#95 ; always the bottom
-	BEQ	InitialJoyCheckDone
+	CMP	#89 ; always the bottom
+	BEQ	CheckRight
 	LDA	OddFrameCheck
-	BEQ	ScrollUp
+	BEQ	ScrollUp2
 	DEC	OddFrameCheck
-	JMP	InitialJoyCheckDone
-ScrollUp
+	JMP	CheckRight
+ScrollUp2
+
 	LDA	#1
 	STA	OddFrameCheck
 	DEC	ScrollPointerTop
-	DeC	ScrollPointerBottom
+	DEC	ScrollPointerBottom
+CheckRight
+	LDA	SWCHAStore
+	AND	#%10000000 ; right
+	BNE	CheckLeft
+	LDA	Player0HPosition
+	CMP	#136	; right hand extrema
+	BEQ	CheckLeft
+	INC	Player0HPosition
+CheckLeft
+	LDA	SWCHAStore
+	AND	#%01000000 ; left
+	BNE	InitialJoyCheckDone
+	LDA	Player0HPosition
+	CMP	#16	; left hand extrema
+	BEQ	InitialJoyCheckDone
+	DEC	Player0HPosition
 InitialJoyCheckDone
 	;=================
 
+	;=================
+	; set up P0/P1 for timer for frame
+	;=================
+	STA	WSYNC
+	LDY	#7
+PlayerCoarseLoop
+	DEY
+	BPL	PlayerCoarseLoop
+	NOP
+	STA	RESP0
+	STA	RESP1
+	LDA	#%00110000
+	STA	HMP0
+	LDA	#%01000000
+	STA	HMP1
+	STA	WSYNC
+	STA	HMOVE
+	;==================
+
+	;==================
+	; Load Marble data into RAM
+	;==================
+	LDY	#7
+P0MarbleInRamLoop
+	LDA	Marble1,Y
+	STA	P0MarbleRAM,Y
+	DEY
+	BPL	P0MarbleInRamLoop
+	;==================
 
 	;==================
 	RTS
 	;==================
 
+NumberZero
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%01000010
+	dc.b	%01000010
+	dc.b	%01000010
+	dc.b	%00100100
+	dc.b	%00011000
+
+NumberOne
+	dc.b	%00111110
+	dc.b	%00001000
+	dc.b	%00001000
+	dc.b	%00001000
+	dc.b	%00001000
+	dc.b	%00011000
+	dc.b	%00001000
+
+Marble1
+	dc.b	%00000000
+	dc.b	%00011000
+	dc.b	%00111100
+	dc.b	%01111110
+	dc.b	%01111110
+	dc.b	%01111110
+	dc.b	%00111100
+	dc.b	%00011000
 
 ;=================
 DrawScreenBank1
@@ -192,20 +318,102 @@ DrawScreenBank1
 	LDA	#0
 	STA	COLUBK
 	LDA	#1
-	STA	CTRLPF ; non-reflected
+	STA	CTRLPF ; reflected
 
-	;LDY	#(95-1) ; (95*2 = 190 + 2 on top = 192)
+	;===========
+	; DRAW THE TIMER section
+    IF NTSC
+	LDA	#$82	; blue
+    ELSE ; (PAL)
+	LDA	#$D2	; blue
+    ENDIF
+	STA	COLUPF
+	LDA	#$0E ; same as NTSC/PAL
+	STA	COLUP0
+	STA	COLUP1
+	LDA	#$C0
+	STA	PF2
+
+	LDY	#6
+	STA	WSYNC ; 1 blue line for score
+ScoreLoop
+	LDA	NumberOne,Y
+	STA	GRP0
+	LDA	NumberZero,Y
+	STA	GRP1
+	STA	WSYNC
+	DEY
+	BPL	ScoreLoop
+	LDA	#0
+	STA	GRP0
+	STA	GRP1
+    IF NTSC
+	LDA	#$82	; blue
+    ELSE ; (PAL)
+	LDA	#$D2	; blue
+    ENDIF
+	STA	COLUP0
+	; Define player 2 as red
+	;===========
+	
+	;LDY	#(89-1) ; (89*2 = 178 + 8 + 2 + 4 on top = 192)
 	LDY	ScrollPointerTop
 	DEY
 
+	; we need to set P0's position.
+	;====================
+	; Calculate P1,P0 HPos
+	;====================
+	; coarse/fine setting of P1 graphic HPos
+	; code by vdub_bobby
+	LDX	#0
+	LDA	Player0HPosition
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	STX	PF2
+
+	; Calculate Player's left/right position on screen
+CalculatePlayersHPosLoop
+	sec
+	sta	HMCLR
+	sta	WSYNC ; [5]
+DivideLoopPlayersBank1
+	sbc	#15
+	bcs	DivideLoopPlayersBank1
+	eor	#7
+	asl
+	asl
+	asl
+	asl
+	sta.wx	HMP0,X
+	sta	RESP0,X
+	sta	WSYNC ; [6]
+	sta	HMOVE
+	STA	WSYNC ; without this line, we screw up P1 positioning by
+                      ; touching HMP1 with an HMCLR too early on P0 positioning
+	;DEX
+	;LDA	Player1HPosition
+	;BPL	CalculatePlayersHPosLoop
+
+	STA	WSYNC ; to even out
+
 	;==========
 	LDA	OddFrameCheck
-	BEQ	DrawLoopBank1
+	BEQ	DrawLoopBank1Pass1
 	STA	WSYNC ; [1]
 	;==========
 
 
-DrawLoopBank1
+DrawLoopBank1Pass1
 	;==========
 	STA	WSYNC ; [2, 4 = first even frame completed]
 	;==========
@@ -269,31 +477,152 @@ DrawLoopBank1
 	STA	PF2	; [3, 48]
 	;== END NEW CODE ==
 
-	;==== TEST CODE ====
-	;LDA	#$FA	; [2, 7]
-	;STA	PF1	; [3, 10]
-	;LDA	#$55	; [2, 12]
-	;STA	PF2	; [3, 15]
-	;NOP		; [2, 17]
-	;NOP		; [2, 19]
-	;NOP		; [2, 21]
-	;NOP		; [2, 23]
-	;NOP		; [2, 25]
-	;NOP		; [2, 27]
-	;NOP		; [2, 29]
-	;NOP		; [2, 31]
-	;NOP		; [2, 33]
-	;NOP		; [2, 35]
-	;LDA	$80	; [3, 38]
-	;LDA	#$FF	; [2, 40]
-	;STA	PF1	; [3, 43]
-	;LDA	#$FF	; [2, 45]
-	;STA	PF2	; [3, 48]
-	;== END TEST CODE ==
+	DEY
+	;CPY	ScrollPointerBottom
+	CPY	Player0VPosition
+	BNE	DrawLoopBank1Pass1
+	;=======================
+
+;=================
+	LDX	#7 ; marble frames
+DrawLoopBank1Pass2
+	;==========
+	STA	WSYNC ; [2, 4 = first even frame completed]
+	;==========
+
+	LDA	#$08	; white ; [2] (same as NTSC and PAL)
+
+	STA	COLUPF ; [3, 5]
+	;==== NEW CODE ====
+	LDA	Level_0_WhiteData_PF1_1,Y	; [4, 9]
+	STA	PF1	; [3, 12]
+	LDA	P0MarbleRAM,X ; [4 , 16]
+	STA	GRP0	; [3, 19]
+	LDA	Level_0_WhiteData_PF2_2,Y	; [4, 23]
+	STA	PF2	; [3, 26]
+	NOP		; [2, 28]
+	NOP		; [2, 30]
+	NOP		; [2, 32]
+	NOP		; [2, 34]
+	LDA	Level_0_WhiteData_PF1_4,Y	; [4, 38]
+	STA	PF1	; [3, 41]
+	LDA	Level_0_WhiteData_PF2_3,Y	; [4, 45]
+	STA	PF2	; [3, 48]
+	;== END NEW CODE ==
+	DEX	; marble pointer
+
+	;==========
+	STA	WSYNC ; [3, = first odd frame completed]
+	;==========
+	
+  IF LEVEL == 0
+    IF NTSC
+	LDA	#$22	; brown
+    ELSE ; (PAL)
+	LDA	#$42	; brown
+    ENDIF
+  ENDIF
+  IF LEVEL == 1
+    IF NTSC
+	LDA	#$82	; blue
+    ELSE ; (PAL)
+	LDA	#$D2	; blue
+    ENDIF
+  ENDIF
+
+	STA	COLUPF ; [3, 5]
+	;==== NEW CODE ====
+	LDA	Level_0_BlueData_PF1_1,Y	; [4, 9]
+	STA	PF1	; [3, 12]
+	LDA	P0MarbleRAM,X ; [4 , 16]
+	STA	GRP0	; [3, 19]
+	LDA	Level_0_BlueData_PF2_2,Y	; [4, 23]
+	STA	PF2	; [3, 26]
+	NOP		; [2, 28]
+	NOP		; [2, 30]
+	NOP		; [2, 32]
+	NOP		; [2, 34]
+	LDA	Level_0_BlueData_PF1_4,Y	; [4, 38]
+	STA	PF1	; [3, 41]
+	LDA	Level_0_BlueData_PF2_3,Y	; [4, 45]
+	STA	PF2	; [3, 48]
+	;== END NEW CODE ==
+	DEY	; frame pointer
+	DEX	; marble pointer
+	BPL	DrawLoopBank1Pass2
+	;=======================
+
+;=============
+
+DrawLoopBank1Pass3
+	;==========
+	STA	WSYNC ; [2, 4 = first even frame completed]
+	;==========
+
+	LDA	#$08	; white ; [2] (same as NTSC and PAL)
+
+	STA	COLUPF ; [3, 5]
+	;==== NEW CODE ====
+	LDA	Level_0_WhiteData_PF1_1,Y	; [4, 9]
+	STA	PF1	; [3, 12]
+	LDA	Level_0_WhiteData_PF2_2,Y	; [4, 16]
+	STA	PF2	; [3, 19]
+	NOP		; [2, 21]
+	NOP		; [2, 23]
+	NOP		; [2, 25]
+	NOP		; [2, 27]
+	NOP		; [2, 29]
+	NOP		; [2, 31]
+	LDA	$80	; [3, 34]
+	LDA	Level_0_WhiteData_PF1_4,Y	; [4, 38]
+	STA	PF1	; [3, 41]
+	LDA	Level_0_WhiteData_PF2_3,Y	; [4, 45]
+	STA	PF2	; [3, 48]
+	;== END NEW CODE ==
+
+	;==========
+	STA	WSYNC ; [3, = first odd frame completed]
+	;==========
+	
+  IF LEVEL == 0
+    IF NTSC
+	LDA	#$22	; brown
+    ELSE ; (PAL)
+	LDA	#$42	; brown
+    ENDIF
+  ENDIF
+  IF LEVEL == 1
+    IF NTSC
+	LDA	#$82	; blue
+    ELSE ; (PAL)
+	LDA	#$D2	; blue
+    ENDIF
+  ENDIF
+
+	STA	COLUPF ; [3, 5]
+	;==== NEW CODE ====
+	LDA	Level_0_BlueData_PF1_1,Y	; [4, 9]
+	STA	PF1	; [3, 12]
+	LDA	Level_0_BlueData_PF2_2,Y	; [4, 16]
+	STA	PF2	; [3, 19]
+	NOP		; [2, 21]
+	NOP		; [2, 23]
+	NOP		; [2, 25]
+	NOP		; [2, 27]
+	NOP		; [2, 29]
+	NOP		; [2, 31]
+	LDA	$80	; [3, 34]
+	LDA	Level_0_BlueData_PF1_4,Y	; [4, 38]
+	STA	PF1	; [3, 41]
+	LDA	Level_0_BlueData_PF2_3,Y	; [4, 45]
+	STA	PF2	; [3, 48]
+	;== END NEW CODE ==
 
 	DEY
 	CPY	ScrollPointerBottom
-	BPL	DrawLoopBank1
+	BPL	DrawLoopBank1Pass3
+	;=======================
+
 
 	;========================
 	; scanline 192
