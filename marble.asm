@@ -22,9 +22,13 @@
 ; RAM Allocation
 ;===================================
 ;---------------------
-; $80-$8F = Temp variables
+; $80-$8F = Normal variables
 ;---------------------
-Temp = $80  ; one Word
+SecondsRemaining = $80
+FrameCounter = $81
+LevelNumber = $82
+LeftNumber = $83 ; and $84
+RightNumber = $85 ; and $86
 
 ;---------------------
 ; $90-$9F = Screen variables
@@ -36,7 +40,14 @@ OddFrameCheck = $93
 Player0HPosition = $94
 Player1HPosition = $95
 Player0VPosition = $96
-Player0VPosition2 = $97
+Player0VPosition2 = $97 ; just a bit used to slow things down
+
+Player0HPositionA = $98
+Player0VPositionA = $99
+Player0SpeedDown = $9A
+Player0SpeedUp = $9B
+Player0SpeedLeft = $9C
+Player0SpeedRight = $9D
 
 ;---------------------
 ; $A0-$AF = Marble RAM
@@ -93,7 +104,6 @@ ClearingRAM
 ;=================
 GameInitBank1
 ;=================
-
 	; Do init stuff
 	LDA	#200
 	STA	ScrollPointerTop ; highest for practiceLevel
@@ -101,12 +111,25 @@ GameInitBank1
 	STA	ScrollPointerBottom ; lowest
 	LDA	#1
 	STA	OddFrameCheck ; even frame
-	LDA	#77
+	LDA	#78
 	STA	Player0HPosition
 	LDA	#189
 	STA	Player0VPosition ; these are divided by 2, so pos is 20.
 	LDA	#0
 	STA	Player0VPosition2 ; 0 or 1, frame counter to slow ball
+	STA	Player0HPositionA ; speed
+	STA	Player0VPositionA ; speed
+	STA	Player0SpeedDown
+	STA	Player0SpeedUp
+	STA	Player0SpeedLeft
+	STA	Player0SpeedRight
+	STA	FrameCounter ; zero-frame for seconds timer
+	STA	LevelNumber	; level zero
+	LDA	#$20 ; BCD, so hex
+	STA	SecondsRemaining
+	LDA	#>Numbers
+	STA	RightNumber+1
+	STA	LeftNumber+1
 
 ;=================
 MainLoopBank1
@@ -114,7 +137,7 @@ MainLoopBank1
 	JSR	VerticalBlankBank1 ; Execute the vertical blank.
 	; Game won?
 	; End screen
-	;JSR	ResetSelectCheck
+	JSR	ResetSelectCheck
 	JSR	GameCalcBank1	; Do calculations during Vblank
 	JSR	DrawScreenBank1	; Draw the screen
 	JSR	OverScanBank1	; Do more calculations during overscan
@@ -145,9 +168,59 @@ VerticalBlankBank1
 	RTS
 	;==================
 
+	;========================
+	; Reset/select pressed
+	;========================
+ResetSelectCheck
+	LDA	SWCHB
+	AND	#%00000001
+	BNE	ResetNotPressed
+	LDX	#$FF
+	TXS
+  IF NTSC
+	LDY	#0
+	LDX	#249
+  ELSE ; PAL
+	LDY	#1
+	LDX	#43
+  ENDIF
+WsyncLoopOnReset
+	STA	WSYNC
+	DEX
+	BNE	WsyncLoopOnReset
+	DEY
+	BPL	WsyncLoopOnReset
+	JMP	GameInitBank1
+ResetNotPressed
+	RTS
+	;=================
+
 ;=================
 GameCalcBank1
 ;=================
+
+	;=================
+	; Deal with timer countdown
+	;=================
+	LDA	SecondsRemaining
+	BNE	GameNotOver
+	; Game Over
+	JMP	NoPlayerMovement
+GameNotOver
+	INC	FrameCounter
+	LDA	FrameCounter
+	CMP	#60
+	BNE	Not60Frames
+	LDA	#0
+	STA	FrameCounter
+	SED	; BCD
+	LDA	SecondsRemaining
+	SEC
+	SBC	#1
+	STA	SecondsRemaining
+	CLD	; back to normal math
+Not60Frames
+	;=================
 
 	;=================
 	LDA	SWCHA
@@ -155,8 +228,141 @@ GameCalcBank1
 	;=================
 
 	;=================
-	; Joystick up/down movement-- tied to Grinch V Position data
+	; Transform SWCHA
 	;=================
+DealWithUp
+	LDA	SWCHAStore
+	AND	#%00010000 ; up
+	BNE	UpNotPressed
+	; Up pressed.  Are we going down?
+	LDA	Player0SpeedDown
+	BEQ	NotMovingDownAndUpPressed
+	DEC	Player0SpeedDown
+	DEC	Player0SpeedDown
+	JMP	DontMoveUp
+NotMovingDownAndUpPressed
+	;
+	LDA	Player0SpeedUp
+	CMP	#$FE ; going top speed?
+	BEQ	UpNotPressed
+	INC	Player0SpeedUp
+	INC	Player0SpeedUp
+UpNotPressed
+	LDA	Player0SpeedUp
+	CLC
+	ADC	Player0VPositionA
+	STA	Player0VPositionA
+	BCC	DontMoveUp
+	LDA	SWCHAStore
+	AND	#%11101111
+	STA	SWCHAStore
+	JMP	DealWithDown
+DontMoveUp
+	LDA	SWCHAStore
+	ORA	#%00010000
+	STA	SWCHAStore
+	;=================
+DealWithDown
+	LDA	SWCHAStore
+	AND	#%00100000 ; down
+	BNE	DownNotPressed
+	; Down Pressed.  Are we going up?
+	LDA	Player0SpeedUp
+	BEQ	NotMovingUpAndDownPressed
+	DEC	Player0SpeedUp
+	DEC	Player0SpeedUp
+	JMP	DontMoveDown
+NotMovingUpAndDownPressed
+	LDA	Player0SpeedDown
+	CMP	#$FE
+	BEQ	DownNotPressed
+	INC	Player0SpeedDown
+	INC	Player0SpeedDown
+DownNotPressed
+	LDA	Player0SpeedDown
+	CLC
+	ADC	Player0VPositionA
+	STA	Player0VPositionA
+	BCC	DontMoveDown
+	LDA	SWCHAStore
+	AND	#%11011111
+	STA	SWCHAStore
+	JMP	DealWithLeft
+DontMoveDown
+	LDA	SWCHAStore
+	ORA	#%00100000
+	STA	SWCHAStore
+	;=================
+DealWithLeft
+	LDA	SWCHAStore
+	AND	#%01000000 ; left
+	BNE	LeftNotPressed
+	; Left pressed.  Are we going right?
+	LDA	Player0SpeedRight
+	BEQ	NotMovingRightAndLeftPressed
+	DEC	Player0SpeedRight
+	DEC	Player0SpeedRight
+	JMP	DontMoveLeft
+NotMovingRightAndLeftPressed
+	LDA	Player0SpeedLeft
+	CMP	#$FE ; going top speed?
+	BEQ	LeftNotPressed
+	INC	Player0SpeedLeft
+	INC	Player0SpeedLeft
+LeftNotPressed
+	LDA	Player0SpeedLeft
+	CLC
+	ADC	Player0HPositionA
+	STA	Player0HPositionA
+	BCC	DontMoveLeft
+	LDA	SWCHAStore
+	AND	#%10111111
+	STA	SWCHAStore
+	JMP	DealWithRight
+DontMoveLeft
+	LDA	SWCHAStore
+	ORA	#%01000000
+	STA	SWCHAStore
+	;=================
+DealWithRight
+	LDA	SWCHAStore
+	AND	#%10000000 ; right
+	BNE	RightNotPressed
+	; Right pressed.  Are we going left?
+	LDA	Player0SpeedLeft
+	BEQ	NotMovingLeftAndRightPressed
+	DEC	Player0SpeedLeft
+	DEC	Player0SpeedLeft
+	JMP	DontMoveRight
+NotMovingLeftAndRightPressed
+	;
+	LDA	Player0SpeedRight
+	CMP	#$FE ; going top speed?
+	BEQ	RightNotPressed
+	INC	Player0SpeedRight
+	INC	Player0SpeedRight
+RightNotPressed
+	LDA	Player0SpeedRight
+	CLC
+	ADC	Player0HPositionA
+	STA	Player0HPositionA
+	BCC	DontMoveRight
+	LDA	SWCHAStore
+	AND	#%01111111
+	STA	SWCHAStore
+	JMP	NoMoreDirections
+DontMoveRight
+	LDA	SWCHAStore
+	ORA	#%10000000
+	STA	SWCHAStore
+NoMoreDirections
+	;=================
+
+
+	;=================
+	; Joystick up/down movement
+	;=================
+RealJoyChecks
 	LDA	SWCHAStore
 	AND	#%00010000 ; up
 	BNE	CheckDown
@@ -247,6 +453,7 @@ InitialJoyCheckDone
 	;=================
 	; set up P0/P1 for timer for frame
 	;=================
+NoPlayerMovement
 	STA	WSYNC
 	LDY	#7
 PlayerCoarseLoop
@@ -278,23 +485,110 @@ P0MarbleInRamLoop
 	RTS
 	;==================
 
+
+	;==================
+	ORG	$F500
+	;==================
+Numbers	; Should be on a page boundary to be effective
 NumberZero
 	dc.b	%00011000
 	dc.b	%00100100
-	dc.b	%01000010
-	dc.b	%01000010
-	dc.b	%01000010
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00100100
 	dc.b	%00100100
 	dc.b	%00011000
+	dc.b	0
 
 NumberOne
-	dc.b	%00111110
+	dc.b	%00011100
 	dc.b	%00001000
 	dc.b	%00001000
 	dc.b	%00001000
 	dc.b	%00001000
 	dc.b	%00011000
 	dc.b	%00001000
+	dc.b	0
+
+NumberTwo
+	dc.b	%00111100
+	dc.b	%00100000
+	dc.b	%00100000
+	dc.b	%00011000
+	dc.b	%00000100
+	dc.b	%00100100
+	dc.b	%00011000
+	dc.b	0
+
+NumberThree
+	dc.b	%00111000
+	dc.b	%00000100
+	dc.b	%00000100
+	dc.b	%00011000
+	dc.b	%00000100
+	dc.b	%00000100
+	dc.b	%00111000
+	dc.b	0
+
+NumberFour
+	dc.b	%00000100
+	dc.b	%00000100
+	dc.b	%00000100
+	dc.b	%00111100
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	0
+
+NumberFive
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%00000100
+	dc.b	%00011000
+	dc.b	%00100000
+	dc.b	%00100000
+	dc.b	%00111100
+	dc.b	0
+
+NumberSix
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00111000
+	dc.b	%00100000
+	dc.b	%00100000
+	dc.b	%00011000
+	dc.b	0
+
+NumberSeven
+	dc.b	%00010000
+	dc.b	%00010000
+	dc.b	%00001000
+	dc.b	%00001000
+	dc.b	%00000100
+	dc.b	%00000100
+	dc.b	%00111100
+	dc.b	0
+
+NumberEight
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00011000
+	dc.b	0
+
+NumberNine
+	dc.b	%00011000
+	dc.b	%00100100
+	dc.b	%00000100
+	dc.b	%00011100
+	dc.b	%00100100
+	dc.b	%00100100
+	dc.b	%00011000
+	dc.b	0
 
 Marble1
 	dc.b	%00000000
@@ -305,6 +599,7 @@ Marble1
 	dc.b	%01111110
 	dc.b	%00111100
 	dc.b	%00011000
+
 
 ;=================
 DrawScreenBank1
@@ -334,12 +629,27 @@ DrawScreenBank1
 	LDA	#$C0
 	STA	PF2
 
+	LDA	SecondsRemaining
+	AND	#%00001111 ; mask out right digit
+	ASL
+	ASL
+	ASL
+	STA	RightNumber
+	LDA	SecondsRemaining
+	AND	#%11110000 ; mask out left digit
+	CLC
+	LSR
+	STA	LeftNumber
+
+
 	LDY	#6
 	STA	WSYNC ; 1 blue line for score
 ScoreLoop
-	LDA	NumberOne,Y
+	LDA	(LeftNumber),Y
+	;LDA	NumberFive,Y
 	STA	GRP0
-	LDA	NumberZero,Y
+	LDA	(RightNumber),Y
+	;LDA	NumberFive,Y
 	STA	GRP1
 	STA	WSYNC
 	DEY
