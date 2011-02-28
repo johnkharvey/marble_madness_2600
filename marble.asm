@@ -1,11 +1,8 @@
 ;===================================
-; Proto-code for project "Marble"
-;===================================
-
-
-;===================================
-; Rev history
-; v1 = Draw PF from PNG
+; "Marble Madness"
+; -- The Beginner Race
+;
+; (for your Atari 2600)
 ;===================================
 
 ;===================================
@@ -16,7 +13,9 @@
 ;===================================
 ; Bank Layouts
 ; Bank 1 = Graphics/kernels
-; Bank 2 = Collision detection
+; Bank 2 = Collision detection handling after Bank3/Bank4 table lookup
+; Bank 3 = Collision table processing for left side of screen
+; Bank 4 = Collision table processing for right side of screen
 ;===================================
 
 ;===================================
@@ -38,10 +37,9 @@ FrameCounter = $85
 LevelNumber = $86
 LeftNumber = $87	; and $88
 RightNumber = $89 ; and $8A
-; 0 = start screen
-; 1 = direction select screen
-; 2 = level 1
-; 3 = game win
+; 0 = start screen / direction select screen
+; 1 = level 1 play
+; 2 = level 1 win
 GamePhase = $8B
 NinetyDegrees = $8C ; 0 = 90, 1 = 45
 IncreasingCounter = $8D
@@ -214,18 +212,22 @@ MainLoopBank1
 	INC	IncreasingCounter ; always increases
 	LDA	GamePhase
 	BNE	NotGamePhaseZero
+; Game phase zero
 	JSR	ResetSelectCheck
 	JSR	GameCalcStartScreenBank1 ; Do calculations during Vblank
 	JSR	TitleScreenBank1		 ; Draw the screen
 	JMP	AfterDrawScreen
 NotGamePhaseZero
 	CMP	#1
-	BNE	NotGamePhaseOne
+	BEQ	GamePhaseOne
+	CMP	#2
+	BEQ	GamePhaseTwo
+	JMP	AfterDrawScreen
+GamePhaseOne
+GamePhaseTwo
 	JSR	ResetSelectCheck
 	JSR	GameCalcBank1	; Do calculations during Vblank
 	JSR	DrawScreenBank1	; Draw the screen
-	JMP	AfterDrawScreen
-NotGamePhaseOne
 
 AfterDrawScreen
 	JSR	OverScanBank1	; Do more calculations during overscan
@@ -289,7 +291,8 @@ GameCalcStartScreenBank1
 	; if fire button pressed, then game on
 	LDA	INPT4
 	BMI	LeftFireButtonNotPressed
-	INC	GamePhase
+	LDA	#1
+	STA	GamePhase
 LeftFireButtonNotPressed
 	; if left/right pressed, increase 90orf5
 	LDA	SWCHA
@@ -325,14 +328,21 @@ GameNotOver
 	LDA	#0
 	STA	FrameCounter
 	SED	; BCD
+  IF DEBUG = 1
 	LDA	SecondsRemaining
 	SEC
-  IF DEBUG = 1
 	SBC	#0
-  ELSE
-	SBC	#1
-  ENDIF
 	STA	SecondsRemaining
+  ELSE
+	LDA	GamePhase
+	CMP	#2
+	BEQ	WeWonDontDecTimer
+	LDA	SecondsRemaining
+	SEC
+	SBC	#1
+	STA	SecondsRemaining
+WeWonDontDecTimer
+  ENDIF
 	CLD	; back to normal math
 Not60Frames
 	;=================
@@ -3414,7 +3424,8 @@ Bank2Code
 	CMP	#WIN
 	BNE	NotAWinCondition
 	; Win condition
-	;INC	GamePhase
+	LDA	#2
+	STA	GamePhase
   IF DEBUG = 1
 	LDA	#$88
 	STA	COLUBK
@@ -3451,6 +3462,10 @@ NotAHoleCondition
 	LDA	#$80 ; middle value
 	STA	Player0VPositionA
 	STA	Player0HPositionA
+	LDA	#7
+	STA	AUDC0
+	STA	AUDV0
+	STA	AUDF0
   ENDIF
 	JMP	ReturntoBank1FromBank2
 NotABumpCondition
@@ -4625,7 +4640,7 @@ WIN  = %00000011
 	CMP	#16
 	BPL	GotoBank4FromBank3
 
-	; Ok, if we fell through to here, we're doinga  lookup
+	; Ok, if we fell through to here, we're doing a lookup
 
 	LDA	ProcessTableLSBBank3,X
 	STA	ReturnAddress
@@ -4641,6 +4656,39 @@ WIN  = %00000011
   ENDIF
 	TAY
 	LDA	(ReturnAddress),Y
+	;===========
+	BNE	FinishedProcessingBank3
+	; otherwise, check if we're an edge-case
+	LDA	Player0HPosition	; initial value 78
+	SEC
+	SBC	#16
+	CLC
+	ADC	#4 ; go from bit zero to bit 4 (of 7).
+	LSR
+	LSR ; divide by 4.
+	TAX
+	; number is 0-31
+	; If 0-15, do in this bank
+	; If 16-31, do in next bank
+	CMP	#16
+	BPL	GotoBank4FromBank3
+	; number is 0-15 for bank4 checks
+	LDA	ProcessTableLSBBank3,X
+	STA	ReturnAddress
+	LDA	ProcessTableMSBBank3,X
+	STA	ReturnAddress+1
+	; Get the line
+	LDA	Player0VPosition ; initial value 189
+	SEC
+  IF DEBUG = 1
+	SBC	#1
+  ELSE
+	SBC	#3
+  ENDIF
+	TAY
+	LDA	(ReturnAddress),Y
+FinishedProcessingBank3
+	;===========
 	STA	CollisionStatusFromTable
 	JMP	Bank2
 
@@ -7424,7 +7472,7 @@ Column13Information
 	dc.b	HOLE
 	dc.b	HOLE
 	dc.b	HOLE
-	dc.b	HOLE
+	dc.b	BUMP
 	dc.b	BUMP
 	dc.b	0
 	dc.b	0
@@ -8146,12 +8194,12 @@ Bank4Code
 	ADC	#3 ; go from bit zero to bit 3 (of 7).
 	LSR
 	LSR ; divide by 4.
-	;TAX
 	; number is 0-31
 	; If 0-15, handle in previous bank
 	; If 16-31, handle in this bank
 	CMP	#16
-	BMI	ReturntoBank2FromBank4
+	BMI	EdgeCaseCheckBank4 ; we take this branch if we got here at middle of screen position case
+	;BMI	ReturntoBank2FromBank4
 	SEC
 	SBC	#16
 	TAX
@@ -8170,7 +8218,42 @@ Bank4Code
   ENDIF
 	TAY
 	LDA	(ReturnAddress),Y
-
+	;===========
+	BNE	FinishedProcessingBank4
+	; otherwise, check if we're an edge-case
+EdgeCaseCheckBank4
+	LDA	Player0HPosition	; initial value 78
+	SEC
+	SBC	#16
+	CLC
+	ADC	#4 ; go from bit zero to bit 4 (of 7).
+	LSR
+	LSR ; divide by 4.
+	; number is 0-31
+	; If 0-15, handle in previous bank
+	; If 16-31, handle in this bank
+	CMP	#16
+	BMI	ReturntoBank2FromBank4 ; should never hit
+	SEC
+	SBC	#16
+	TAX
+	; number is 0-15 for bank4 checks
+	LDA	ProcessTableLSBBank4,X
+	STA	ReturnAddress
+	LDA	ProcessTableMSBBank4,X
+	STA	ReturnAddress+1
+	; Get the line
+	LDA	Player0VPosition ; initial value 189
+	SEC
+  IF DEBUG = 1
+	SBC	#1
+  ELSE
+	SBC	#3
+  ENDIF
+	TAY
+	LDA	(ReturnAddress),Y
+FinishedProcessingBank4
+	;===========
 	STA	CollisionStatusFromTable
 ReturntoBank2FromBank4
 	;=================
