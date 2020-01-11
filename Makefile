@@ -13,6 +13,7 @@ MARBLE_VERSION=2020_01_11
 DASM=bin/dasm/dasm
 WGET=/usr/local/bin/wget
 TAR=/usr/bin/tar
+STELLA=/Applications/Stella.app/Contents/MacOS/Stella
 
 #===============
 # Build Targets
@@ -44,7 +45,7 @@ bin/marble_v${MARBLE_VERSION}_pal.bin:	marble.asm prechecks
 #===============
 # Run Targets
 #===============
-/Applications/Stella.app/Contents/MacOS/Stella:	${WGET}
+${STELLA}:	${WGET}
 	mkdir -p tmp/
 	wget -O tmp/stella.dmg https://github.com/stella-emu/stella/releases/download/${STELLA_VERSION}/Stella-${STELLA_VERSION}-macos.dmg
 	cd tmp && sudo hdiutil attach stella.dmg
@@ -53,8 +54,8 @@ bin/marble_v${MARBLE_VERSION}_pal.bin:	marble.asm prechecks
 	sudo hdiutil detach /Volumes/Stella
 	rm -rf tmp
 
-run:	/Applications/Stella.app/Contents/MacOS/Stella
-	/Applications/Stella.app/Contents/MacOS/Stella bin/marble_v${MARBLE_VERSION}_ntsc.bin
+run:	${STELLA}
+	${STELLA} bin/marble_v${MARBLE_VERSION}_ntsc.bin
 
 #===============
 # Clean Targets
