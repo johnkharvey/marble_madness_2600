@@ -89,7 +89,7 @@ ANGLE_MINUS     = %11000000
 
 ;===================================
 	processor 6502
-	include vcs.h
+	include hdr/vcs.h
 ;===================================
 
         MAC JUMP_TABLE ; put this at the start of every bank
