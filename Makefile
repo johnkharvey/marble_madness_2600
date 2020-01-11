@@ -63,6 +63,7 @@ run:	${STELLA}
 clean:
 	rm -f bin/marble_v${MARBLE_VERSION}_ntsc.bin
 	rm -f bin/marble_v${MARBLE_VERSION}_pal.bin
+	rm -rf tmp
 
 megaclean:	clean
 	brew uninstall wget
