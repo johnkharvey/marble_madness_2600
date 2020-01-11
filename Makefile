@@ -33,6 +33,7 @@ ${DASM}:	${WGET} ${TAR}
 	tar xvf bin/dasm/dasm.tar.gz --directory bin/dasm/
         # Do a touch so it doesn't keep appearing out-of-date
 	find bin/dasm/ -type f -exec touch {} +
+	rm -f bin/dasm/dasm.tar.gz
 
 bin/marble_v${MARBLE_VERSION}_ntsc.bin:	marble.asm	prechecks
 	${DASM} marble.asm -f3 -obin/marble_v${MARBLE_VERSION}_ntsc.bin
